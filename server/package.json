@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "build": "cd ../real-time-chat-app && npm install && npm run build"
+    "build": "cd ../real-time-chat-app && npm ci && npm run build"
   },
   "dependencies": {
     "express": "^4.18.2",

@@ -1,0 +1,21 @@
+:root {
+  --accent: #7c3aed;
+  --muted: rgba(255, 255, 255, 0.7);
+  --glass: rgba(255, 255, 255, 0.04);
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  font-family: Inter, system-ui, Arial;
+  color: white;
+  background-color: #0a0f2b;
+
+  /* Layered colorful gradients */
+  background-image: radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.4), transparent 40%),
+    radial-gradient(circle at 80% 30%, rgba(6, 182, 212, 0.35), transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(255, 195, 113, 0.3), transparent 60%),
+    linear-gradient(180deg, #0a0f2b 0%, #031327 100%);
+  background-blend-mode: screen;
+  background-size: cover;
+}

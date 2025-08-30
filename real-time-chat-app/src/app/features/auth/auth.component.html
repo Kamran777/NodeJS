@@ -1,0 +1,26 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <h1 class="title">
+      {{ mode === 'login' ? 'Login Form' : 'Register Form' }}
+    </h1>
+
+    <form (ngSubmit)="submit()" class="form">
+      <input class="input" placeholder="Username" [(ngModel)]="username" name="u" required />
+      <input class="input" placeholder="Password" [(ngModel)]="password" name="p" type="password" required />
+
+      <!-- Error message -->
+      <p class="error-msg" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+
+      <button class="btn-primary" type="submit">
+        {{ mode === 'login' ? 'Login' : 'Register' }}
+      </button>
+    </form>
+
+    <p class="switch">
+      {{ mode === 'login' ? 'No account?' : 'Have an account?' }}
+      <a class="switch-link" (click)="toggle()">
+        {{ mode === 'login' ? 'Register' : 'Login' }}
+      </a>
+    </p>
+  </div>
+</div>

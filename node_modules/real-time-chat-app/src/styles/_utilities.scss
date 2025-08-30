@@ -1,0 +1,36 @@
+@use 'variables' as *;
+
+.grid-center {
+  display: grid;
+  place-items: center;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Card */
+.card {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: $shadow-md;
+  padding: $spacing-lg;
+}
+
+/* Button */
+.btn {
+  background: $color-primary;
+  color: #fff;
+  font-weight: 500;
+  border-radius: 0.75rem;
+  padding: $spacing-sm $spacing-md;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  border: none;
+
+  &:hover {
+    background: $color-primary-dark;
+  }
+}

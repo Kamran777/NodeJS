@@ -216,7 +216,7 @@ function broadcastPresence() {
 // });
 
 // Serve Angular frontend in production
-const angularDistPath = path.join(__dirname, "../real-time-chat-app/dist/real-time-chat-app");
+const angularDistPath = path.join(__dirname, "../real-time-chat-app/dist/real-time-chat-app/browser");
 
 app.use(express.static(angularDistPath));
 

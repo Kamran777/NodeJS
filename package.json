@@ -1,0 +1,9 @@
+{
+  "name": "chat-monorepo",
+  "private": true,
+  "scripts": {
+    "install": "cd real-time-chat-app && npm install && cd ../server && npm install",
+    "build": "cd real-time-chat-app && npm run build",
+    "start": "cd server && npm start"
+  }
+}

@@ -4,8 +4,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "build": "cd ../real-time-chat-app && npm ci && npm run build"
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",

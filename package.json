@@ -1,12 +1,14 @@
 {
   "name": "chat-monorepo",
   "private": true,
+  "type": "module",
   "scripts": {
-    "postinstall": "cd real-time-chat-app && npm ci && npm run build",
-    "start": "node server/server.js"
+    "postinstall": "npm install --workspace=real-time-chat-app && npm install --workspace=server",
+    "build": "npm run build --workspace=real-time-chat-app",
+    "start": "npm run start --workspace=server"
   },
-  "dependencies": {
-    "express": "^4.19.2",
-    "ws": "^8.18.0"
-  }
+  "workspaces": [
+    "real-time-chat-app",
+    "server"
+  ]
 }

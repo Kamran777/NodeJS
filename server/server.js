@@ -215,16 +215,13 @@ function broadcastPresence() {
 //   res.send("Server is running ✅");
 // });
 
-// Serve Angular frontend (production build)
-app.use(
-  express.static(path.join(__dirname, "real-time-chat-app/dist/real-time-chat-app"))
-);
+// Serve Angular frontend in production
+const angularDistPath = path.join(__dirname, "../real-time-chat-app/dist/real-time-chat-app");
 
-// Catch-all: redirect all non-API routes to Angular
+app.use(express.static(angularDistPath));
+
 app.get("*", (req, res) => {
-  res.sendFile(
-    path.join(__dirname, "real-time-chat-app/dist/real-time-chat-app/index.html")
-  );
+  res.sendFile(path.join(angularDistPath, "index.html"));
 });
 
 httpServer.listen(PORT, () => {

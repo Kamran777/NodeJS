@@ -27,11 +27,7 @@
               }
             ],
             "styles": ["src/styles.scss"],
-            "server": "src/main.server.ts",
-            "outputPath": "dist/real-time-chat-app",
-            "ssr": {
-              "entry": "src/server.ts"
-            }
+            "outputPath": "dist/real-time-chat-app"
           },
           "configurations": {
             "production": {

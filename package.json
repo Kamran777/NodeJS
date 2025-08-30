@@ -2,6 +2,7 @@
   "name": "chat-monorepo",
   "private": true,
   "scripts": {
+    "postinstall": "cd real-time-chat-app && npm install",
     "build": "cd real-time-chat-app && npm run build",
     "start": "node server/server.js"
   },

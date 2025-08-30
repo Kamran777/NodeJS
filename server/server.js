@@ -70,6 +70,11 @@ import { WebSocketServer } from "ws";
 import { createServer } from "http";
 import bcrypt from "bcryptjs";
 import { v4 as uuid } from "uuid";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-super-secret";
 const PORT = process.env.PORT || 4000;
@@ -79,18 +84,20 @@ app.use(cors());
 app.use(express.json());
 
 // --- In-memory stores (swap to DB for prod)
-const users = new Map();          // id -> { id, username, passhash }
-const usernameToId = new Map();   // username -> id
-const messages = new Map();       // convoKey -> [{from,to,text,ts}]
-const socketsByUser = new Map();  // userId -> ws
+const users = new Map(); // id -> { id, username, passhash }
+const usernameToId = new Map(); // username -> id
+const messages = new Map(); // convoKey -> [{from,to,text,ts}]
+const socketsByUser = new Map(); // userId -> ws
 
 const convoKey = (a, b) => [a, b].sort().join("::");
 
 // ---- Auth endpoints
 app.post("/api/register", async (req, res) => {
   const { username, password } = req.body || {};
-  if (!username || !password) return res.status(400).json({ error: "Missing fields" });
-  if (usernameToId.has(username)) return res.status(409).json({ error: "Username taken" });
+  if (!username || !password)
+    return res.status(400).json({ error: "Missing fields" });
+  if (usernameToId.has(username))
+    return res.status(409).json({ error: "Username taken" });
 
   const id = uuid();
   const passhash = await bcrypt.hash(password, 10);
@@ -98,7 +105,9 @@ app.post("/api/register", async (req, res) => {
   users.set(id, user);
   usernameToId.set(username, id);
 
-  const token = jwt.sign({ sub: id, username }, JWT_SECRET, { expiresIn: "7d" });
+  const token = jwt.sign({ sub: id, username }, JWT_SECRET, {
+    expiresIn: "7d",
+  });
   res.json({ token, user: { id, username } });
 });
 
@@ -109,17 +118,19 @@ app.post("/api/login", async (req, res) => {
   const user = users.get(id);
   const ok = await bcrypt.compare(password, user.passhash);
   if (!ok) return res.status(401).json({ error: "Invalid credentials" });
-  const token = jwt.sign({ sub: id, username }, JWT_SECRET, { expiresIn: "7d" });
+  const token = jwt.sign({ sub: id, username }, JWT_SECRET, {
+    expiresIn: "7d",
+  });
   res.json({ token, user: { id, username } });
 });
 
 // Simple list of users (for contact list)
 app.get("/api/users", (req, res) => {
   res.json(
-    Array.from(users.values()).map(u => ({
+    Array.from(users.values()).map((u) => ({
       id: u.id,
       username: u.username,
-      online: socketsByUser.has(u.id)
+      online: socketsByUser.has(u.id),
     }))
   );
 });
@@ -171,7 +182,8 @@ wss.on("connection", (ws, req) => {
 
         // deliver to both sides if connected
         const toSock = socketsByUser.get(to);
-        if (toSock && toSock.readyState === 1) toSock.send(JSON.stringify(entry));
+        if (toSock && toSock.readyState === 1)
+          toSock.send(JSON.stringify(entry));
         if (ws.readyState === 1) ws.send(JSON.stringify(entry));
       }
     } catch (e) {
@@ -188,11 +200,11 @@ wss.on("connection", (ws, req) => {
 function broadcastPresence() {
   const payload = JSON.stringify({
     type: "presence",
-    users: Array.from(users.values()).map(u => ({
+    users: Array.from(users.values()).map((u) => ({
       id: u.id,
       username: u.username,
-      online: socketsByUser.has(u.id)
-    }))
+      online: socketsByUser.has(u.id),
+    })),
   });
   for (const ws of socketsByUser.values()) {
     if (ws.readyState === 1) ws.send(payload);
@@ -201,6 +213,18 @@ function broadcastPresence() {
 
 app.get("/", (req, res) => {
   res.send("Server is running ✅");
+});
+
+// Serve Angular frontend (production build)
+app.use(
+  express.static(path.join(__dirname, "client/dist/real-time-chat-app"))
+);
+
+// Catch-all: redirect all non-API routes to Angular
+app.get("*", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "client/dist/real-time-chat-app/index.html")
+  );
 });
 
 httpServer.listen(PORT, () => {

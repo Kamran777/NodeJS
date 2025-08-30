@@ -3,7 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "postinstall": "npm install --workspace=real-time-chat-app && npm install --workspace=server",
     "build": "npm run build --workspace=real-time-chat-app",
     "start": "npm run start --workspace=server"
   },

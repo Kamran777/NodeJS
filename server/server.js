@@ -211,19 +211,19 @@ function broadcastPresence() {
   }
 }
 
-app.get("/", (req, res) => {
-  res.send("Server is running ✅");
-});
+// app.get("/", (req, res) => {
+//   res.send("Server is running ✅");
+// });
 
 // Serve Angular frontend (production build)
 app.use(
-  express.static(path.join(__dirname, "client/dist/real-time-chat-app"))
+  express.static(path.join(__dirname, "real-time-chat-app/dist/real-time-chat-app"))
 );
 
 // Catch-all: redirect all non-API routes to Angular
 app.get("*", (req, res) => {
   res.sendFile(
-    path.join(__dirname, "client/dist/real-time-chat-app/index.html")
+    path.join(__dirname, "real-time-chat-app/dist/real-time-chat-app/index.html")
   );
 });
 

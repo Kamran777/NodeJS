@@ -199,6 +199,10 @@ function broadcastPresence() {
   }
 }
 
+app.get("/", (req, res) => {
+  res.send("Server is running ✅");
+});
+
 httpServer.listen(PORT, () => {
   console.log(`API http://localhost:${PORT}`);
   console.log(`WS  ws://localhost:${PORT}/ws?token=...`);

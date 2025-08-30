@@ -2,8 +2,11 @@
   "name": "chat-monorepo",
   "private": true,
   "scripts": {
-    "install": "cd real-time-chat-app && npm install && cd ../server && npm install",
     "build": "cd real-time-chat-app && npm run build",
-    "start": "cd server && npm start"
+    "start": "node server/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.18.0"
   }
 }

@@ -62,6 +62,7 @@ export class AuthService {
       const res = await firstValueFrom(
         this.http.post<AuthResponse>(`${environment.apiUrl}/register`, credentials)
       );
+      this.saveToken(res.token);
     } catch (err: any) {
       if (err.status === 409) {
         throw new Error('Username already exists');

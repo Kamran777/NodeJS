@@ -43,7 +43,7 @@ db.prepare(
 `
 ).run();
 
-const socketsByUser = new Map(); // userId -> ws
+const socketsByUser = new Map();
 
 app.post("/api/register", async (req, res) => {
   const { username, password } = req.body || {};
@@ -67,6 +67,9 @@ app.post("/api/register", async (req, res) => {
   const token = jwt.sign({ sub: id, username }, JWT_SECRET, {
     expiresIn: "7d",
   });
+
+  broadcastPresence();
+
   res.json({ token, user: { id, username } });
 });
 

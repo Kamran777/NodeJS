@@ -3,17 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { environment } from '../../../environments/environment';
 import { DM, User } from '../models/chat.model';
-import { Subject } from 'rxjs';
-
-export interface SignalPayload {
-  type: 'signal';
-  from: string;
-  to: string;
-  kind: 'offer' | 'answer' | 'ice' | 'end' | 'reject';
-  media?: 'audio' | 'video';
-  sdp?: RTCSessionDescriptionInit;
-  candidate?: RTCIceCandidateInit;
-}
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
@@ -24,10 +13,8 @@ export class ChatService {
 
   contacts = signal<User[]>([]);
   messages = signal<Record<string, DM[]>>({});
-  unread = signal<Record<string, number>>({});
 
-  // Signaling stream
-  readonly signal$ = new Subject<SignalPayload>();
+  unread = signal<Record<string, number>>({});
 
   private activeId: string | null = null;
 
@@ -62,10 +49,6 @@ export class ChatService {
           u[peerId] = (u[peerId] || 0) + 1;
           this.unread.set(u);
         }
-      }
-
-      if (msg.type === 'signal') {
-        this.signal$.next(msg as SignalPayload);
       }
     };
 
@@ -119,11 +102,5 @@ export class ChatService {
       u[userId] = 0;
       this.unread.set(u);
     }
-  }
-
-  // --- WebRTC signaling ---
-  sendSignal(to: string, data: Omit<SignalPayload, 'type' | 'from' | 'to'>) {
-    if (!this.socket) return;
-    this.socket.send(JSON.stringify({ type: 'signal', to, ...data }));
   }
 }

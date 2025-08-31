@@ -132,43 +132,6 @@
   height: 20px;
 }
 
-.call-overlay {
-  position: fixed; inset: 0; display: grid; place-items: center;
-  background: rgba(0,0,0,0.6); z-index: 1000; color: #fff;
-
-  .incoming, .active-call {
-    background: #111; border-radius: 16px; padding: 20px; width: min(860px, 96vw);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  }
-
-  .incoming {
-    text-align: center;
-    .row { margin-top: 16px; display: flex; gap: 12px; justify-content: center; }
-    button { padding: 10px 16px; border: 0; border-radius: 12px; cursor: pointer; }
-    .accept { background: #2ecc71; }
-    .decline { background: #e74c3c; }
-  }
-
-  .active-call {
-    .videos {
-      display: grid; grid-template-columns: 1fr 240px; gap: 10px; align-items: center;
-      &.audio-only { display: flex; justify-content: center; }
-      video {
-        width: 100%; background: #000; border-radius: 12px;
-      }
-      video:last-child { width: 240px; height: 160px; object-fit: cover; }
-      .audio-badges .pill { background:#222; padding:10px 14px; border-radius:999px; }
-    }
-    .call-controls {
-      margin-top: 12px; display: flex; gap: 10px; justify-content: center;
-      button { padding: 10px 12px; border-radius: 999px; border: 0; cursor: pointer; }
-      .hangup { background: #e74c3c; color: #fff; }
-      .off { opacity: 0.6; }
-    }
-  }
-}
-
-
 .chat-area {
   flex: 1;
   @extend .card;

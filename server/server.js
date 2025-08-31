@@ -68,7 +68,7 @@ app.post("/api/register", async (req, res) => {
     expiresIn: "7d",
   });
 
-  broadcastPresence();
+  setTimeout(() => broadcastPresence(), 0);
 
   res.json({ token, user: { id, username } });
 });

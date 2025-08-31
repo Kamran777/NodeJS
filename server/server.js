@@ -129,6 +129,16 @@ wss.on("connection", (ws, req) => {
   ws.on("message", (data) => {
     try {
       const msg = JSON.parse(data.toString());
+
+      // ----- WebRTC signaling: forward to target peer -----
+      if (msg.type === "signal") {
+        const { to, ...rest } = msg;
+        const toSock = socketsByUser.get(to);
+        const payload = JSON.stringify({ type: "signal", from: id, to, ...rest });
+        if (toSock?.readyState === 1) toSock.send(payload);
+        return;
+      }
+
       if (msg.type === "dm") {
         const { to, text } = msg;
         const ts = Date.now();

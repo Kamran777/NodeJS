@@ -4,12 +4,17 @@
       <h2>Chats</h2>
       <div class="user-meta">
         <span class="username">{{ currentUser() }}</span>
-        <button (click)="logout()">⏻</button>
+        <button (click)="logout()" title="Logout">⏻</button>
       </div>
     </header>
 
     <div class="contact-list">
-      <div *ngFor="let u of contacts()" (click)="select(u)" [ngClass]="{ active: activeId() === u.id }" class="contact">
+      <div
+        *ngFor="let u of contacts(); trackBy: trackByContact"
+        (click)="select(u)"
+        [ngClass]="{ active: activeId() === u.id }"
+        class="contact"
+      >
         <div class="avatar">{{ u.username.charAt(0) | uppercase }}</div>
         <div class="info">
           <span>{{ u.username }}</span>
@@ -33,20 +38,32 @@
           {{ user.online ? "Online" : "Offline" }}
         </small>
       </div>
+
       <div class="actions">
-        <button>📞</button>
-        <button>🎥</button>
-        <button>⋮</button>
+        <button
+          (click)="startCall('audio')"
+          [disabled]="inCall() || !user.online"
+          title="Audio Call"
+        >📞</button>
+        <button
+          (click)="startCall('video')"
+          [disabled]="inCall() || !user.online"
+          title="Video Call"
+        >🎥</button>
+        <button title="More">⋮</button>
       </div>
     </header>
 
     <div class="messages" #messagesContainer (scroll)="onScroll()">
-      <div *ngFor="let m of thread()" [ngClass]="{ me: m.from === meId, peer: m.from !== meId }" class="msg-bubble">
+      <div
+        *ngFor="let m of thread(); trackBy: trackByMessage"
+        [ngClass]="{ me: m.from === meId, peer: m.from !== meId }"
+        class="msg-bubble"
+      >
         <p>{{ m.text }}</p>
         <small>{{ formatTime(m.ts) }}</small>
       </div>
     </div>
-
 
     <footer class="chat-input">
       <form (ngSubmit)="send()">
@@ -61,4 +78,33 @@
       <p>Select a conversation to start chatting 👋</p>
     </section>
   </ng-template>
+</div>
+
+<!-- Call UI (overlay) -->
+<div class="call-overlay" *ngIf="inCall() || incomingCall()">
+  <!-- Incoming call prompt -->
+  <div class="incoming" *ngIf="incomingCall() && !inCall()">
+    <h3>{{ callerName() }} is calling… <small>({{ incomingMedia() }})</small></h3>
+    <div class="row">
+      <button class="accept" (click)="acceptCall()">✅ Accept</button>
+      <button class="decline" (click)="declineCall()">❌ Decline</button>
+    </div>
+  </div>
+
+  <!-- Active call UI -->
+  <div class="active-call" *ngIf="inCall()">
+    <div class="videos" [class.audio-only]="callMedia()==='audio'">
+      <video #remoteVideo autoplay playsinline *ngIf="callMedia()==='video'"></video>
+      <video #localVideo autoplay playsinline muted *ngIf="callMedia()==='video'"></video>
+      <div class="audio-badges" *ngIf="callMedia()==='audio'">
+        <div class="pill">🎧 Connected (audio)</div>
+      </div>
+    </div>
+
+    <div class="call-controls">
+      <button (click)="toggleMute()" [class.off]="muted()">🎙️</button>
+      <button *ngIf="callMedia()==='video'" (click)="toggleCamera()" [class.off]="cameraOff()">📷</button>
+      <button class="hangup" (click)="endCall()">⏹️ End</button>
+    </div>
+  </div>
 </div>

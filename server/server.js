@@ -19,20 +19,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ----------------------
-// SQLite Setup
-// ----------------------
 const db = new Database("chat.db");
 
-db.prepare(`
+db.prepare(
+  `
   CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     username TEXT UNIQUE,
     passhash TEXT
   )
-`).run();
+`
+).run();
 
-db.prepare(`
+db.prepare(
+  `
   CREATE TABLE IF NOT EXISTS messages (
     id TEXT PRIMARY KEY,
     fromId TEXT,
@@ -40,68 +40,78 @@ db.prepare(`
     text TEXT,
     ts INTEGER
   )
-`).run();
+`
+).run();
 
-// ----------------------
-// In-memory sockets
-// ----------------------
 const socketsByUser = new Map(); // userId -> ws
 
-// ----------------------
-// Auth endpoints
-// ----------------------
 app.post("/api/register", async (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password)
     return res.status(400).json({ error: "Missing fields" });
 
-  const existing = db.prepare("SELECT * FROM users WHERE username = ?").get(username);
+  const existing = db
+    .prepare("SELECT * FROM users WHERE username = ?")
+    .get(username);
   if (existing) return res.status(409).json({ error: "Username taken" });
 
   const id = uuid();
   const passhash = await bcrypt.hash(password, 10);
 
-  db.prepare("INSERT INTO users (id, username, passhash) VALUES (?, ?, ?)").run(id, username, passhash);
+  db.prepare("INSERT INTO users (id, username, passhash) VALUES (?, ?, ?)").run(
+    id,
+    username,
+    passhash
+  );
 
-  const token = jwt.sign({ sub: id, username }, JWT_SECRET, { expiresIn: "7d" });
+  const token = jwt.sign({ sub: id, username }, JWT_SECRET, {
+    expiresIn: "7d",
+  });
   res.json({ token, user: { id, username } });
 });
 
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body || {};
-  const user = db.prepare("SELECT * FROM users WHERE username = ?").get(username);
+  const user = db
+    .prepare("SELECT * FROM users WHERE username = ?")
+    .get(username);
   if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
   const ok = await bcrypt.compare(password, user.passhash);
   if (!ok) return res.status(401).json({ error: "Invalid credentials" });
 
-  const token = jwt.sign({ sub: user.id, username }, JWT_SECRET, { expiresIn: "7d" });
+  const token = jwt.sign({ sub: user.id, username }, JWT_SECRET, {
+    expiresIn: "7d",
+  });
   res.json({ token, user: { id: user.id, username } });
 });
 
 app.get("/api/users", (req, res) => {
   const rows = db.prepare("SELECT id, username FROM users").all();
-  res.json(rows.map((u) => ({
-    ...u,
-    online: socketsByUser.has(u.id),
-  })));
+  res.json(
+    rows.map((u) => ({
+      ...u,
+      online: socketsByUser.has(u.id),
+    }))
+  );
 });
 
 app.get("/api/history/:peerId/:meId", (req, res) => {
   const { peerId, meId } = req.params;
-  const rows = db.prepare(`
+  const rows = db
+    .prepare(
+      `
     SELECT id, fromId as "from", toId as "to", text, ts
     FROM messages
     WHERE (fromId = ? AND toId = ?) OR (fromId = ? AND toId = ?)
     ORDER BY ts ASC
-  `).all(meId, peerId, peerId, meId);
+  `
+    )
+    .all(meId, peerId, peerId, meId);
 
   res.json(rows);
 });
 
-// ----------------------
-// WebSocket Setup
-// ----------------------
 const httpServer = createServer(app);
 const wss = new WebSocketServer({ noServer: true });
 
@@ -140,11 +150,9 @@ wss.on("connection", (ws, req) => {
 
         const entry = { type: "dm", id: mid, from: id, to, text, ts };
 
-        // deliver to recipient
         const toSock = socketsByUser.get(to);
         if (toSock?.readyState === 1) toSock.send(JSON.stringify(entry));
 
-        // echo back to sender
         if (ws.readyState === 1) ws.send(JSON.stringify(entry));
       }
     } catch (e) {
@@ -173,9 +181,6 @@ function broadcastPresence() {
   }
 }
 
-// ----------------------
-// Serve Angular frontend in prod
-// ----------------------
 const angularDistPath = path.join(
   __dirname,
   "../real-time-chat-app/dist/real-time-chat-app/browser"
@@ -186,9 +191,6 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(angularDistPath, "index.html"));
 });
 
-// ----------------------
-// Start
-// ----------------------
 httpServer.listen(PORT, () => {
   console.log(`✅ API http://localhost:${PORT}`);
   console.log(`✅ WS  ws://localhost:${PORT}/ws?token=...`);

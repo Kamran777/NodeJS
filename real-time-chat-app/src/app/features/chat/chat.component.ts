@@ -33,7 +33,15 @@ export default class ChatComponent implements OnInit, OnDestroy {
   draft = signal('');
   activeId = signal<string | null>(null);
 
-  contacts = computed(() => this.chat.contacts().filter((u) => u.id !== this.meId));
+  contacts = computed(() =>
+    this.chat
+      .contacts()
+      .filter((u) => u.id !== this.meId)
+      .sort((a, b) => {
+        if (a.online !== b.online) return Number(b.online) - Number(a.online);
+        return a.username.localeCompare(b.username);
+      })
+  );
 
   thread = computed<DM[]>(() =>
     this.activeId() ? this.chat.messages()[this.activeId()!] || [] : []

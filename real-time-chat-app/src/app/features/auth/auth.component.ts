@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { AuthCredentials } from '../../core/models/auth-credentials.model';
 import { AuthMode } from '../../core/enums/auth-mode.enum';
+import { ChatService } from '../../core/services/chat.service';
 
 @Component({
   selector: 'app-auth',
@@ -19,7 +20,7 @@ export default class AuthComponent {
   errorMessage = signal<string | null>(null);
   successMessage = signal<string | null>(null);
 
-  constructor(private readonly auth: AuthService) {}
+  constructor(private readonly auth: AuthService, private chat: ChatService) {}
 
   toggle(): void {
     this.mode.set(this.mode() === AuthMode.Login ? AuthMode.Register : AuthMode.Login);
@@ -49,6 +50,7 @@ export default class AuthComponent {
         await this.auth.login(credentials);
       } else {
         await this.auth.register(credentials);
+        await this.chat.loadContacts();
         this.mode.set(AuthMode.Login);
         this.username.set('');
         this.password.set('');
